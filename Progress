@@ -1,0 +1,11 @@
+                            Assignment
+
+A. Create a program that implements a fuzzy logic controller that receives inputs related
+to speed and altitude data and controls a hypothetical airplane to increase or decrease
+its speed. You will choose the rules to adopt as well as the data set.
+B. Create a program that simulates the knapsack problem with a swarm intelligence
+algorithm (not a genetic algorithm). Your program should allow the user to enter the
+problem data
+
+
+List of link used that helped the making of this project (all in one place)
