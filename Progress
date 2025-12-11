@@ -9,3 +9,18 @@ problem data
 
 
 List of link used that helped the making of this project (all in one place)
+
+https://scikit-fuzzy.readthedocs.io/en/latest/userguide/getting_started.html
+https://airadvisor.com/en/blog/how-fast-do-planes-fly
+https://www.flightschoolusa.com/how-high-do-planes-fly-altitude-limits/
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+First of all a research on airplanes is needed to have a better understanding and decide how to build the program.I want to have a more realistic approach to the plane,
+maybe include the average weight,the type or something that can be distinct.Perhaps the user enters the weight of the plane ,the state of the flight(take-off/landing/crusing),height,speed
+and the fuzzy outputs if it should increase,decrease or stay the same.For now I will impliment only the speed and altitude if it's simple I will impliment other aspects.
+
+The average plane goes a maximum speed of 10000 km/h and altitude of 45000 feet
+
+Speed of average plane:0 - 10000 km/h
+Altitude of average plane:0 - 45000 feet
