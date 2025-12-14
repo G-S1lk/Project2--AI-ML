@@ -1,0 +1,80 @@
+# pip install scikit-fuzzy numpy για να κατεβουν οι βιβλιοθηκες
+
+import numpy as np
+import skfuzzy as fuzz
+from skfuzzy import control as ctrl
+
+
+speed = ctrl.Antecedent(
+    np.arange(0, 1001, 1), "speed"
+)  # We decleare the limits of each "element", the speed limit is 1000 km/h
+altitude = ctrl.Antecedent(
+    np.arange(0, 10001, 1), "altitude"
+)  # and the height is 10000m
+throttle = ctrl.Consequent(
+    np.arange(-50, 51, 1), "throttle"
+)  # and the throttle can be decreased or increased by 50% maximum
+
+
+speed["slow"] = fuzz.trimf(
+    speed.universe, [0, 0, 500]
+)  # We create the triangle for speed=0 the slow is beginning to start at 0, peak at 0 and declines at 500
+speed["optimal"] = fuzz.trimf(
+    speed.universe, [400, 500, 600]
+)  # ame as the above but with a smaller distance between the values of the triangle
+speed["fast"] = fuzz.trimf(
+    speed.universe, [500, 1000, 1000]
+)  # Same as the triangle for slow
+
+
+altitude["low"] = fuzz.trimf(
+    altitude.universe, [0, 0, 5000]
+)  # Exactly the same as of the speed
+altitude["optimal"] = fuzz.trimf(altitude.universe, [4000, 5000, 6000])
+altitude["high"] = fuzz.trimf(altitude.universe, [5000, 10000, 10000])
+
+
+throttle["decrease"] = fuzz.trimf(throttle.universe, [-50, -50, 0])
+throttle["maintain"] = fuzz.trimf(throttle.universe, [-20, 0, 20])
+throttle["increase"] = fuzz.trimf(throttle.universe, [0, 50, 50])
+
+
+rule1 = ctrl.Rule(
+    speed["slow"] | altitude["low"], throttle["increase"]
+)  # Rules of the system: when speed is slow OR altitude is low, throttle increases
+rule2 = ctrl.Rule(
+    speed["fast"] | altitude["high"], throttle["decrease"]
+)  # When speed is fast OR altitude is high, throttle decreases
+rule3 = ctrl.Rule(
+    speed["optimal"] & altitude["optimal"], throttle["maintain"]
+)  # When both speed and altitude are optimal, maintain throttle
+
+
+fuzzctr_ctrl_ctrl = ctrl.ControlSystem([rule1, rule2, rule3])
+fuzzctr_ctrl = ctrl.ControlSystemSimulation(fuzzctr_ctrl_ctrl)
+
+
+user_speed = float(input("Enter speed of airplane (km/h): "))
+while user_speed < 0 or user_speed > 1000:
+    user_speed = float(input("Speed should be a value between 0 and 1000 (km/h): "))
+
+user_alt = float(input("Enter altitude of airplane (m): "))
+while user_alt < 0 or user_alt > 10000:
+    user_alt = float(input("Altitude should be a value between 0 and 10000(m): "))
+
+
+fuzzctr_ctrl.input["speed"] = user_speed
+fuzzctr_ctrl.input["altitude"] = user_alt
+
+
+fuzzctr_ctrl.compute()  # Calculates the percent of throttle suggested to calibrate the plane
+throttle_perc = fuzzctr_ctrl.output["throttle"]
+
+
+if throttle_perc > 3:
+    answ = f"increase speed by {throttle_perc:.2f}"  # We make it so that a 3% divergence in each axis does not make the engine go from maintain to either stasis
+    answ = f"decrease speed by {throttle_perc:.2f} "
+else:
+    answ = "maintain speed"
+
+print(f"Suggested action by the controller: {answ}")
