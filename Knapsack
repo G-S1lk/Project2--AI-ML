@@ -1,2 +1,78 @@
-import numpy as np
-imprt pyswarms as ps
+#Κυριες πηγες για την υλοποιηση:
+#https://eclass.uth.gr/modules/document/file.php/CS_U_226/CI_ML_Lecture19_20.pdf
+#https://www.geeksforgeeks.org/dsa/0-1-knapsack-problem-dp-10/
+#https://pyswarms.readthedocs.io/en/latest/examples/tutorials/basic_optimization.html
+#Για αρκετα πιο αναλυτικη περιγραφη υπαρχει https://github.com/G-S1lk/Project2--AI-ML/blob/main/Progress
+#το οποιο περιλαμβανει καθε πηγη που χρησιμοποιηθηκε καθως και αναλυτικο τροπο σκεψης πισω απο καθε βημα
+
+
+import numpy  as np 
+import pyswarms as ps
+
+user_input=(input("Do you want to enter your own data(y/n): "))     #We ask the user if we wants to enter data on his own or skip it
+if user_input.casefold() == 'y':
+    capacity=int(input("Enter the capacity of the knapsack:"))
+    while capacity <= 0:
+        capacity=int(input("Capacity of knapsack should be greater than 0:"))
+
+    user_number_items=int(input("Enter the desired number of items:"))      #We our user to enter the number of items it can choose from , the weight and value of each
+    while user_number_items <= 0:                                           #item and the capacity of the knapsack
+        user_number_items=int(input("Number of items should be greater than 0:"))
+
+    weight = []                                                              #We initialize the weight and value array
+    value = [] 
+
+    for i in range(user_number_items):
+        user_weight=int(input(f"Enter the weight of item {i+1}:"))
+        while user_weight <=0:
+            user_weight=int(input(f"The weight should be greater than 0:"))
+        weight.append(user_weight)
+
+        user_value=int(input(f"Enter the value of item {i+1}:"))
+        while user_value <=0:
+            user_value=int(input(f"The value should be greater than 0:"))
+        value.append(user_value)
+
+    weight = np.array(weight)                                               #We put the weight and value of each item to an array so the pyswarm can use it  
+    value = np.array(value)
+
+else:               #I made an example that can skip the tedious data entry process that has simple and easy choices to see if the program works,also helps with quick 
+    capacity = 20   #data entry
+    weight = np.array([10, 7, 15, 5, 5])
+    value = np.array([90, 60, 20, 50, 50])
+    number_items = 5
+
+
+def fitness_function(x): #x is an array with 0s,1s that includes many "solutions" 0=doesnt take , 1=takes
+    # x: Είναι ένας πίνακας με 0 και 1 που περιέχει πολλές λύσεις μαζί
+    n_particles = x.shape[0]    #npartciles how many particles the swarm has
+
+    scores = [] #We save the scores
+
+    for i in range(n_particles):  
+        current_weight = np.sum(x[i] * weight)  #We calculate the current weight and value of the sack
+        current_value = np.sum(x[i] * value)    #The x[i] is the line with the 0s and 1s for the i particle
+
+        if current_weight > capacity:   #We check if we are in the given limit           
+            scores.append(10000000)     #If it is overweight we penalize it with a very big positive nubmer ,so that it doesnt make the same "mistake" again
+        else:
+            scores.append(-current_value) #If it "fits" we return the negative value of it.We do that because the pyswarm looks for the lowest(smaller) so the -1000
+                                          #is better than -50 thats why we penalize it with the positive, we want the smaller 
+            
+    return np.array(scores) 
+
+options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9, 'k': 5,'p': 2} #Some basic arguments based on the pyswarm 
+
+optimizer = ps.discrete.BinaryPSO(n_particles=20, dimensions=len(weight), options=options)#We create the optimizer
+
+cost, pos = optimizer.optimize(fitness_function, iters=100) #Number of times the optimizer runs
+
+print("Best case (0=Didn't take, 1=Took):", pos) #pos is the best case 
+
+best_value = -cost                          #We make cost positive again for better understading
+print(f"Max value acquired: {best_value}")
+
+final_weight = np.sum(pos * weight)     #We print the results
+print(f"Total weight: {final_weight} (Weight limit: {capacity})")
+print("Weight",weight)#The arrays of the weight and value so we can see exactly which item it took
+print("Value",value)
