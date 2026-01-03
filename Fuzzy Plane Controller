@@ -73,6 +73,7 @@ throttle_perc = fuzzctr_ctrl.output["throttle"]
 
 if throttle_perc > 3:
     answ = f"increase speed by {throttle_perc:.2f}"  # We make it so that a 3% divergence in each axis does not make the engine go from maintain to either stasis
+elif throttle_perc < -3:
     answ = f"decrease speed by {throttle_perc:.2f} "
 else:
     answ = "maintain speed"
